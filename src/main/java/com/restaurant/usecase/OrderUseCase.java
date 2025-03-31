@@ -1,8 +1,10 @@
 package com.restaurant.usecase;
 
+import com.restaurant.domain.model.Coupon;
 import com.restaurant.domain.model.Order;
 import com.restaurant.domain.model.OrderStatus;
 import com.restaurant.domain.model.Product;
+import com.restaurant.domain.repository.CouponRepository;
 import com.restaurant.domain.repository.OrderRepository;
 import com.restaurant.domain.service.DiscountService;
 
@@ -12,10 +14,12 @@ import java.util.UUID;
 
 public class OrderUseCase {
     private final OrderRepository orderRepository;
+    private final CouponRepository couponRepository;
     private final DiscountService discountService;
 
-    public OrderUseCase(OrderRepository orderRepository, DiscountService discountService) {
+    public OrderUseCase(OrderRepository orderRepository, CouponRepository couponRepository, DiscountService discountService) {
         this.orderRepository = orderRepository;
+        this.couponRepository = couponRepository;
         this.discountService = discountService;
     }
 
@@ -36,30 +40,44 @@ public class OrderUseCase {
         order.changeStatus(OrderStatus.IN_PROGRESS);
         return orderRepository.save(order);
     }
-    public Optional<Order> closeOrder(UUID orderId, String couponCode) {
-        try {
-            Order order = orderRepository.findById(orderId)
-                    .orElseThrow(() -> new IllegalArgumentException("Pedido no encontrado"));
 
-            if (order.getStatus() != OrderStatus.DELIVERED) {
-                throw new IllegalStateException("Solo se pueden cerrar pedidos entregados");
-            }
+    private void applyCouponDiscount(Order order, String couponCode) {
+        Optional<Coupon> optionalCoupon = couponRepository.findByCode(couponCode);
 
-            // Aplicar descuento si el cupón es válido
-            if (couponCode != null && !couponCode.isBlank()) {
-                double discountPercentage = discountService.validateCoupon(couponCode);
-                if (discountPercentage > 0) {
-                    double discountAmount = order.calculateSubtotal() * (discountPercentage / 100);
-                    order.applyDiscount(discountAmount, discountPercentage);
-                }
-            }
-
-            order.changeStatus(OrderStatus.CLOSED);
-            return Optional.of(orderRepository.save(order));
-        } catch (Exception e) {
-            System.err.println("Error al cerrar pedido: " + e.getMessage());
-            return Optional.empty();
+        if (optionalCoupon.isEmpty()) {
+            throw new IllegalArgumentException("Cupón inválido: " + couponCode);
         }
+
+        Coupon coupon = optionalCoupon.get();
+        if (coupon.getDiscountPercent() > 10) {
+            throw new IllegalArgumentException("El porcentaje del cupón no puede ser mayor al 10%.");
+        }
+
+        // Aplica el descuento utilizando DiscountService
+        double newTotal = discountService.applyDiscount(order.getTotal(), couponCode);
+        order.setTotal(newTotal);
+    }
+
+    public Order closeOrder(UUID orderId, String couponCode) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("El pedido no existe. ID: " + orderId));
+
+        if (order.getStatus() != OrderStatus.DELIVERED) {
+            throw new IllegalArgumentException("Solo se pueden cerrar pedidos en estado 'Entregado'. Estado actual: " + order.getStatus());
+        }
+
+        if (couponCode != null && !couponCode.trim().isEmpty()) {
+            try {
+                applyCouponDiscount(order, couponCode.trim());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Error al aplicar el cupón: " + e.getMessage());
+            }
+        }
+
+        order.changeStatus(OrderStatus.CLOSED);
+        orderRepository.save(order);
+
+        return order;
     }
 
     public boolean cancelOrder(UUID orderId) {

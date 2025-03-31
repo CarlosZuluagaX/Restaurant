@@ -1,27 +1,29 @@
 package com.restaurant.domain.service;
 
+import com.restaurant.domain.model.Coupon;
+import com.restaurant.domain.repository.CouponRepository;
+import java.util.Optional;
+
 public class DiscountService {
-    private static final double MAX_DISCOUNT_PERCENTAGE = 10.0;
+    private final CouponRepository couponRepository;
 
-    public double validateCoupon(String couponCode) {
-        if (couponCode == null || couponCode.isBlank()) {
-            return 0.0;
+    public DiscountService(CouponRepository couponRepository) {
+        this.couponRepository = couponRepository;
+    }
+
+    public Optional<Coupon> getCouponByCode(String code) {
+        return couponRepository.findByCode(code);
+    }
+
+    public double applyDiscount(double total, String couponCode) {
+        Optional<Coupon> couponOpt = getCouponByCode(couponCode);
+
+        if (couponOpt.isEmpty()) {
+            throw new IllegalArgumentException("Cupón inválido");
         }
 
-        try {
-            // Formato esperado: "DESC10" para 10% de descuento
-            if (couponCode.startsWith("DESC")) {
-                String percentageStr = couponCode.substring(4);
-                double percentage = Double.parseDouble(percentageStr);
-
-                // Validar que el descuento no exceda el máximo permitido
-                if (percentage > 0 && percentage <= MAX_DISCOUNT_PERCENTAGE) {
-                    return percentage;
-                }
-            }
-            return 0.0;
-        } catch (NumberFormatException e) {
-            return 0.0;
-        }
+        Coupon coupon = couponOpt.get();
+        double discountAmount = total * (coupon.getDiscountPercent() / 100);
+        return Math.max(total - discountAmount, 0);  // Asegura que no sea negativo
     }
 }

@@ -72,8 +72,7 @@ public class OrderConsoleAdapter {
             String coupon = scanner.nextLine();
 
             // 3. Cerrar pedido
-            Order closedOrder = orderUseCase.closeOrder(orderId, coupon.isEmpty() ? null : coupon)
-                    .orElseThrow(() -> new IllegalArgumentException("No se pudo cerrar el pedido"));
+            Order closedOrder = orderUseCase.closeOrder(orderId, coupon.isEmpty() ? null : coupon);
 
             // 4. Mostrar resumen
             printReceipt(closedOrder);
