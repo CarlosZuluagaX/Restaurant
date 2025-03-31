@@ -137,10 +137,11 @@ public class OrderConsoleAdapter {
         while (addingItems) {
             System.out.println("\n🛒 Añadiendo productos al pedido:");
             productUseCase.getAllProducts().forEach(p ->
-                    System.out.printf("- %s (%s)%n", p.getName(), currencyFormat.format(p.getPrice())));
+                    System.out.printf("- %s (%s)%n", p.getName(), currencyFormat.format(p.getPrice()))
+            );
 
             System.out.print("\nIngrese el nombre del producto (o 'fin' para terminar): ");
-            String productName = scanner.nextLine();
+            String productName = scanner.nextLine().trim().toLowerCase(); // Normaliza el nombre ingresado
 
             if (productName.equalsIgnoreCase("fin")) {
                 addingItems = false;
@@ -148,7 +149,7 @@ public class OrderConsoleAdapter {
             }
 
             Optional<Product> product = productUseCase.getAllProducts().stream()
-                    .filter(p -> p.getName().equalsIgnoreCase(productName))
+                    .filter(p -> p.getName().trim().toLowerCase().equals(productName)) // Normaliza el nombre en la comparación
                     .findFirst();
 
             if (product.isEmpty()) {

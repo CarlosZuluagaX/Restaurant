@@ -2,12 +2,9 @@ package com.restaurant.domain.model;
 
 import lombok.Getter;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 /**
- * @param product  Devuelve el producto asociado Producto asociado al pedido
- * @param quantity Devuelve la cantidad del producto Cantidad del producto
+ * @param product  Producto asociado al pedido
+ * @param quantity Cantidad del producto
  */
 
 public record OrderItem(Product product, int quantity) {
@@ -20,20 +17,16 @@ public record OrderItem(Product product, int quantity) {
         }
     }
 
-    // Calcula el subtotal (precio del producto * cantidad)
-    public double calculateSubtotal() {
-        return product.getPrice();
-    }
-
+    // Devuelve el subtotal (precio del producto * cantidad)
     public double getSubtotal() {
-        return calculateSubtotal();
+        return product.getPrice() * quantity;
     }
 
     @Override
     public String toString() {
-        return String.format("%d x %s -> Subtotal: %s",
+        return String.format("%d x %s -> Subtotal: %.2f",
                 quantity,
                 product.getName(),
-                NumberFormat.getCurrencyInstance(new Locale("es", "CO")).format(calculateSubtotal()));
+                getSubtotal());
     }
 }
