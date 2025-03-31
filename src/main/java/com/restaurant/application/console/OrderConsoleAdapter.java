@@ -85,6 +85,30 @@ public class OrderConsoleAdapter {
             pause();
         }
     }
+    public void markOrderAsDelivered() {
+        System.out.print("Ingrese el ID del pedido a marcar como entregado: ");
+        String orderIdInput = scanner.nextLine().trim();
+
+        try {
+            UUID orderId = UUID.fromString(orderIdInput);
+            Optional<Order> orderOpt = orderUseCase.getOrderById(orderId);
+
+            if (orderOpt.isPresent()) {
+                Order order = orderOpt.get();
+
+                if (order.getStatus() == OrderStatus.IN_PROGRESS) {
+                    order.changeStatus(OrderStatus.DELIVERED);
+                    System.out.println("✅ El pedido ha sido marcado como ENTREGADO.");
+                } else {
+                    System.out.println("⚠️ El pedido no está en progreso y no se puede marcar como entregado.");
+                }
+            } else {
+                System.out.println("❌ No se encontró un pedido con ese ID.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("❌ ID de pedido inválido.");
+        }
+    }
 
     public void cancelOrder() {
         System.out.println("\n=== ❌ CANCELAR PEDIDO ===");

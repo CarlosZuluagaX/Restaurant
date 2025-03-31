@@ -29,11 +29,12 @@ public class ConsoleMenu {
                     case 2 -> orderAdapter.createOrder();
                     case 3 -> orderAdapter.showActiveOrders();
                     case 4 -> orderAdapter.closeOrder();
-                    case 5 -> orderAdapter.cancelOrder();
-                    case 6 -> {
+                    case 5 -> orderAdapter.markOrderAsDelivered();
+                    case 6 -> orderAdapter.cancelOrder();
+                    case 7 -> {
                         exit = confirmExit();
                     }
-                    case 7 -> showAdminMenu();
+                    case 8 -> showAdminMenu();
                     default -> showInvalidOptionMessage();
                 }
             } catch (InputMismatchException e) {
@@ -53,9 +54,10 @@ public class ConsoleMenu {
         System.out.println("2. ➕ Realizar nuevo pedido");
         System.out.println("3. 📊 Ver pedidos activos");
         System.out.println("4. 💰 Cerrar pedido y calcular total");
-        System.out.println("5. ❌ Cancelar pedido");
-        System.out.println("6. 🚪 Salir del sistema");
-        System.out.println("7. ⚙️  Menú de administración");
+        System.out.println("5. ✅ Marcar pedido como entregado");
+        System.out.println("6. ❌ Cancelar pedido");
+        System.out.println("7. 🚪 Salir del sistema");
+        System.out.println("8. ⚙️  Menú de administración");
         System.out.print("👉 Seleccione una opción: ");
     }
 
