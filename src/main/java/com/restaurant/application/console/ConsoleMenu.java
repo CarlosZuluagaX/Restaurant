@@ -8,10 +8,20 @@ public class ConsoleMenu {
     private final OrderConsoleAdapter orderAdapter;
     private final Scanner scanner;
 
-    public ConsoleMenu(ProductConsoleAdapter productAdapter, OrderConsoleAdapter orderAdapter) {
+    // Constantes actualizadas según nueva posición
+    private static final int OPTION_VIEW_PRODUCTS = 1;
+    private static final int OPTION_CREATE_ORDER = 2;
+    private static final int OPTION_VIEW_ORDERS = 3;
+    private static final int OPTION_MARK_DELIVERED = 4;
+    private static final int OPTION_CLOSE_ORDER = 5;
+    private static final int OPTION_CANCEL_ORDER = 6;
+    private static final int OPTION_EXIT = 7;
+    private static final int OPTION_ADMIN_MENU = 8;
+
+    public ConsoleMenu(ProductConsoleAdapter productAdapter, OrderConsoleAdapter orderAdapter, Scanner scanner) {
         this.productAdapter = productAdapter;
         this.orderAdapter = orderAdapter;
-        this.scanner = new Scanner(System.in);
+        this.scanner = scanner;
     }
 
     public void showMainMenu() {
@@ -25,21 +35,19 @@ public class ConsoleMenu {
                 scanner.nextLine(); // Limpiar buffer
 
                 switch (option) {
-                    case 1 -> showProductMenu();
-                    case 2 -> orderAdapter.createOrder();
-                    case 3 -> orderAdapter.showActiveOrders();
-                    case 4 -> orderAdapter.closeOrder();
-                    case 5 -> orderAdapter.markOrderAsDelivered();
-                    case 6 -> orderAdapter.cancelOrder();
-                    case 7 -> {
-                        exit = confirmExit();
-                    }
-                    case 8 -> showAdminMenu();
+                    case OPTION_VIEW_PRODUCTS -> showProductMenu();
+                    case OPTION_CREATE_ORDER -> orderAdapter.createOrder();
+                    case OPTION_VIEW_ORDERS -> orderAdapter.showActiveOrders();
+                    case OPTION_MARK_DELIVERED -> orderAdapter.markOrderAsDelivered();
+                    case OPTION_CLOSE_ORDER -> orderAdapter.closeOrder();
+                    case OPTION_CANCEL_ORDER -> orderAdapter.cancelOrder();
+                    case OPTION_EXIT -> exit = confirmExit();
+                    case OPTION_ADMIN_MENU -> showAdminMenu();
                     default -> showInvalidOptionMessage();
                 }
             } catch (InputMismatchException e) {
                 showInvalidInputMessage();
-                scanner.nextLine(); // Limpiar entrada incorrecta
+                scanner.nextLine(); // Limpiar entrada inválida
             } catch (Exception e) {
                 System.out.println("\n⚠️ Error: " + e.getMessage());
             }
@@ -53,8 +61,8 @@ public class ConsoleMenu {
         System.out.println("1. 📋 Ver carta de productos");
         System.out.println("2. ➕ Realizar nuevo pedido");
         System.out.println("3. 📊 Ver pedidos activos");
-        System.out.println("4. 💰 Cerrar pedido y calcular total");
-        System.out.println("5. ✅ Marcar pedido como entregado");
+        System.out.println("4. ✅ Marcar pedido como entregado");
+        System.out.println("5. 💰 Cerrar pedido y calcular total");
         System.out.println("6. ❌ Cancelar pedido");
         System.out.println("7. 🚪 Salir del sistema");
         System.out.println("8. ⚙️  Menú de administración");
