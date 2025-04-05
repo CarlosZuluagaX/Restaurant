@@ -20,7 +20,7 @@ public class InMemoryCouponRepository implements CouponRepository {
     @Override
     public Optional<Coupon> findByCode(String code) {
         return coupons.stream()
-                .filter(c -> c.getCode().equalsIgnoreCase(code.trim()))
+                .filter(c -> c.code().equalsIgnoreCase(code.trim()))
                 .findFirst();
     }
 }

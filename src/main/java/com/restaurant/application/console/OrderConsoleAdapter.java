@@ -85,6 +85,14 @@ public class OrderConsoleAdapter {
             pause();
         }
     }
+    private void printReceipt(Order order) {
+        System.out.println("\n=== 🧾 RECIBO DE PAGO ===");
+        printOrderDetails(order);
+
+        System.out.printf("\n💰 TOTAL A PAGAR: %s%n",
+                currencyFormat.format(order.calculateTotal()));
+    }
+
     public void markOrderAsDelivered() {
         System.out.print("Ingrese el ID del pedido a marcar como entregado: ");
         String orderIdInput = scanner.nextLine().trim();
@@ -238,22 +246,19 @@ public class OrderConsoleAdapter {
                         item.product().getName(),
                         currencyFormat.format(item.product().getPrice())));
 
-        System.out.println("\n💵 Total: " + currencyFormat.format(order.calculateTotal()));
+        // Muestra el subtotal (sin descuento)
+        System.out.println("\n💵 Subtotal: " + currencyFormat.format(order.calculateSubtotal()));
+
+        // Si hay descuento, mostrarlo también acá
+        if (order.isDiscountApplied()) {
+            System.out.printf("🎫 Descuento aplicado: -%s (%.2f%%)%n",
+                    currencyFormat.format(order.getDiscountAmount()),
+                    order.getDiscountPercentage());
+        }
+
         System.out.println("=================================");
     }
 
-    private void printReceipt(Order order) {
-        System.out.println("\n=== 🧾 RECIBO DE PAGO ===");
-        printOrderDetails(order);
-
-        if (order.isDiscountApplied()) {
-            System.out.printf("\n🎫 Descuento aplicado: -%s%n",
-                    currencyFormat.format(order.getDiscountAmount()));
-        }
-
-        System.out.printf("\n💰 TOTAL A PAGAR: %s%n",
-                currencyFormat.format(order.calculateTotal()));
-    }
 
     private String translateStatus(OrderStatus status) {
         return switch (status) {

@@ -11,9 +11,9 @@ public class Order {
     private final Integer tableNumber;
     private final List<OrderItem> items;
     private OrderStatus status;
-    private boolean couponApplied;
-    private double discountAmount;
-    private double discountPercentage;
+    public boolean couponApplied;
+    public double discountAmount;
+    public double discountPercentage;
     private double total;
 
     public Order(Integer tableNumber) {
@@ -59,7 +59,7 @@ public class Order {
         if (couponApplied) {
             throw new IllegalStateException("Este pedido ya tiene un cupón aplicado.");
         }
-        applyDiscount(coupon.getDiscountPercent());
+        applyDiscount(coupon.discountPercent());
     }
 
     public double calculateTotal() {
@@ -97,17 +97,23 @@ public class Order {
                         item.product().getPrice()))
         );
 
-        details.append(String.format("\n💵 Subtotal: %.2f\n", calculateSubtotal()));
+        // Calcula el subtotal sin descuento (suma de los items)
+        double subtotal = calculateSubtotal();
+        details.append(String.format("\n💵 Subtotal (sin descuento): %.2f\n", subtotal));
 
+        // Muestra el descuento aplicado si es que hay
         if (couponApplied) {
             details.append(String.format("🎫 Descuento aplicado: -%.2f (%.2f%%)\n", discountAmount, discountPercentage));
         }
 
-        details.append(String.format("\n💰 Total: %.2f\n", total));
+        // Calcula el total final restando el descuento del subtotal
+        double finalTotal = subtotal - discountAmount;
+        details.append(String.format("\n💰 PAGÓ UN TOTAL DE: %.2f\n", finalTotal));
         details.append("=================================\n");
 
         return details.toString();
     }
+
     public boolean isDiscountApplied() {
         return couponApplied || discountAmount > 0;
     }

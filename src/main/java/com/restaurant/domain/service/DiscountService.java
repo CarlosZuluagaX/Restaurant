@@ -23,7 +23,7 @@ public class DiscountService {
         }
 
         Coupon coupon = couponOpt.get();
-        double discountAmount = total * (coupon.getDiscountPercent() / 100);
-        return Math.max(total - discountAmount, 0);  // Asegura que no sea negativo
+        double discountAmount = total * coupon.getPercentAsDecimal();
+        return Math.max(total - discountAmount, 0);
     }
 }

@@ -49,14 +49,26 @@ public class OrderUseCase {
         }
 
         Coupon coupon = optionalCoupon.get();
-        if (coupon.getDiscountPercent() > 10) {
+        if (coupon.discountPercent() > 10) {  // Si usas record, acceder con coupon.discountPercent()
             throw new IllegalArgumentException("El porcentaje del cupón no puede ser mayor al 10%.");
         }
 
-        // Aplica el descuento utilizando DiscountService
-        double newTotal = discountService.applyDiscount(order.getTotal(), couponCode);
+        // Calcula el subtotal original del pedido
+        double subtotal = order.calculateSubtotal();
+
+        // Aplica el descuento usando DiscountService (ahora se calcula sobre el subtotal)
+        double newTotal = discountService.applyDiscount(subtotal, couponCode);
+
+        // Calcula el monto de descuento aplicado
+        double discountAmount = subtotal - newTotal;
+
+        // Actualiza los campos del pedido
+        order.couponApplied = true;
+        order.discountAmount = discountAmount;
+        order.discountPercentage = coupon.discountPercent();
         order.setTotal(newTotal);
     }
+
 
     public Order closeOrder(UUID orderId, String couponCode) {
         Order order = orderRepository.findById(orderId)
